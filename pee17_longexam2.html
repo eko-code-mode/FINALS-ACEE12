@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#1e3a5f" />
+  <title>PEE 17 — Power System Analysis | Long Examination 2</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&display=swap');
+
+    :root {
+      --ink: #1a1a1a;
+      --muted: #4a4a4a;
+      --border: #2c3e50;
+      --accent: #1e3a5f;
+      --accent2: #8b1538;
+      --paper: #faf9f7;
+      --rule: #c9c4bc;
+      --success: #1b5e20;
+      --error: #8b1538;
+      --glow-green: rgba(46,125,50,0.55);
+      --glow-red: rgba(198,40,40,0.55);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { font-size: 100%; -webkit-text-size-adjust: 100%; overflow-x: hidden; }
+    body {
+      margin: 0;
+      font-family: 'Source Serif 4', 'Georgia', 'Times New Roman', serif;
+      color: var(--ink);
+      background: var(--paper);
+      line-height: 1.55;
+      overflow-x: hidden;
+    }
+
+    /* ── HEADER ── */
+    .exam-header {
+      background: var(--accent);
+      color: #fff;
+      padding: 2.25rem clamp(1rem, 5vw, 2rem) 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .exam-header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(255,255,255,0.025) 40px, rgba(255,255,255,0.025) 80px);
+      pointer-events: none;
+    }
+    .header-inner { max-width: 50rem; margin: 0 auto; text-align: center; position: relative; }
+    .header-badge {
+      display: inline-block;
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase;
+      background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
+      color: rgba(255,255,255,0.9); padding: 0.3rem 0.85rem; border-radius: 2px; margin-bottom: 0.85rem;
+    }
+    .exam-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(1.5rem, 5vw, 2.4rem); font-weight: 900;
+      margin: 0 0 0.5rem; line-height: 1.15; color: #fff;
+    }
+    .exam-title span { color: #f0c040; }
+    .subtitle { font-size: clamp(0.85rem, 2.5vw, 0.97rem); color: rgba(255,255,255,0.7); font-style: italic; margin: 0; }
+    .instructions-lead {
+      margin: 1rem auto 0;
+      font-size: clamp(0.82rem, 2.4vw, 0.9rem);
+      color: rgba(255,255,255,0.65);
+      max-width: 38rem; line-height: 1.45;
+    }
+
+    /* ── MAIN ── */
+    .exam-main { max-width: 50rem; margin: 0 auto; padding: 2rem clamp(1rem, 4vw, 1.75rem) 4rem; width: 100%; }
+
+    /* ── STUDENT BLOCK ── */
+    .student-block {
+      margin-bottom: 2.25rem; padding: 1.35rem 1.5rem 1.5rem;
+      background: #fff; border: 1px solid var(--rule); border-top: 4px solid var(--accent); border-radius: 2px;
+    }
+    .section-label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent); margin: 0 0 1rem; font-weight: 700; }
+    .student-grid { display: grid; gap: 0.85rem; }
+    @media (min-width: 36rem) {
+      .student-grid { grid-template-columns: 1fr 1fr; }
+      .student-grid .field:first-child { grid-column: 1 / -1; }
+    }
+    .field { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.95rem; }
+    .field span { font-weight: 600; font-size: 0.88rem; color: var(--muted); }
+    .field input {
+      font-family: inherit; font-size: 1rem; padding: 0.5rem 0.65rem;
+      border: 1px solid var(--rule); border-bottom: 2px solid var(--accent);
+      border-radius: 2px; background: #fefefe;
+    }
+    .field input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+    /* ── PARTS ── */
+    .exam-part { margin-bottom: 2.75rem; }
+    .part-header { display: flex; align-items: baseline; gap: 0.75rem; border-bottom: 2px solid var(--ink); padding-bottom: 0.4rem; margin-bottom: 0.5rem; }
+    .part-number { font-family: 'Playfair Display', serif; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent2); }
+    .part-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; margin: 0; line-height: 1; }
+    .part-direction { margin: 0.45rem 0 1.35rem; font-style: italic; color: var(--muted); font-size: 0.95rem; }
+    .questions { display: flex; flex-direction: column; gap: 1.25rem; }
+
+    /* ── MC ITEMS ── */
+    .mc-item {
+      padding: 1rem 1rem 1rem 1.1rem;
+      border-left: 3px solid var(--rule);
+      background: #fff; border-radius: 0 3px 3px 0;
+      transition: box-shadow 0.15s ease, border-left-color 0.15s ease, background-color 0.15s ease;
+    }
+    .mc-stem { margin: 0 0 0.7rem; font-weight: 600; line-height: 1.45; overflow-wrap: break-word; }
+    .mc-note { margin: 0.55rem 0 0; font-size: 0.83rem; color: var(--muted); font-style: italic; border-top: 1px dashed var(--rule); padding-top: 0.45rem; }
+    .mc-options { display: flex; flex-direction: column; gap: 0.3rem; }
+    .mc-options label {
+      display: flex; align-items: flex-start; gap: 0.6rem; cursor: pointer;
+      font-size: clamp(0.88rem, 2.6vw, 0.97rem); padding: 0.45rem 0.3rem;
+      border-radius: 3px; min-height: 2.6rem; touch-action: manipulation;
+    }
+    .mc-options label:hover { background: rgba(30,58,95,0.05); }
+    .mc-options input { margin-top: 0.22rem; flex-shrink: 0; width: 1.1rem; height: 1.1rem; accent-color: var(--accent); }
+    .mc-options span { overflow-wrap: break-word; min-width: 0; }
+
+    /* ── FEEDBACK GLOWS ── */
+    .mc-item.answer-correct {
+      border-left-color: #2e7d32; background-color: rgba(46,125,50,0.06);
+      box-shadow: 0 0 0 1px rgba(46,125,50,0.35), 0 0 20px 4px var(--glow-green), 0 0 40px 8px rgba(46,125,50,0.15);
+      animation: glow-green-pulse 2s ease-in-out infinite;
+    }
+    .mc-item.answer-incorrect {
+      border-left-color: #c62828; background-color: rgba(198,40,40,0.06);
+      box-shadow: 0 0 0 1px rgba(198,40,40,0.4), 0 0 20px 4px var(--glow-red), 0 0 40px 8px rgba(198,40,40,0.18);
+      animation: glow-red-pulse 2s ease-in-out infinite;
+    }
+    @keyframes glow-green-pulse {
+      0%,100% { box-shadow: 0 0 0 1px rgba(46,125,50,0.35), 0 0 16px 3px var(--glow-green), 0 0 32px 6px rgba(46,125,50,0.12); }
+      50% { box-shadow: 0 0 0 1px rgba(46,125,50,0.45), 0 0 24px 6px rgba(46,125,50,0.65), 0 0 48px 10px rgba(46,125,50,0.2); }
+    }
+    @keyframes glow-red-pulse {
+      0%,100% { box-shadow: 0 0 0 1px rgba(198,40,40,0.4), 0 0 16px 3px var(--glow-red), 0 0 32px 6px rgba(198,40,40,0.14); }
+      50% { box-shadow: 0 0 0 1px rgba(198,40,40,0.5), 0 0 24px 6px rgba(198,40,40,0.7), 0 0 48px 10px rgba(198,40,40,0.22); }
+    }
+
+    /* ── ACTIONS ── */
+    .actions {
+      display: flex; flex-wrap: wrap; gap: 0.65rem;
+      margin: 2.25rem 0 0; padding-top: 1.5rem; border-top: 1px solid var(--rule);
+    }
+    .btn {
+      font-family: 'Source Serif 4', serif; font-size: 0.92rem;
+      padding: 0.65rem 1.25rem; min-height: 2.75rem; border-radius: 3px;
+      cursor: pointer; border: 1px solid var(--border);
+      touch-action: manipulation; letter-spacing: 0.02em;
+      transition: background 0.18s, color 0.18s;
+    }
+    .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
+    .btn-primary:hover { background: #152d49; }
+    .btn-secondary { background: #fff; color: var(--ink); }
+    .btn-secondary:hover { background: #f0eeeb; }
+    .btn-outline { background: transparent; color: var(--accent); border-color: var(--accent); }
+    .btn-outline:hover { background: rgba(30,58,95,0.07); }
+    .btn-danger { background: transparent; color: var(--accent2); border-color: var(--accent2); }
+    .btn-danger:hover { background: rgba(139,21,56,0.07); }
+
+    /* ── RESULTS ── */
+    .results-panel { margin-top: 1.75rem; padding: 1.35rem 1.5rem 1.75rem; border: 1px solid var(--border); border-top: 4px solid var(--accent); background: #fff; }
+    .results-panel.hidden { display: none; }
+    .results-summary { font-size: 1.05rem; margin: 0 0 1.1rem; font-weight: 600; }
+    .score-bar-wrap { height: 10px; background: #e0ddd8; border-radius: 99px; overflow: hidden; margin-bottom: 1.25rem; }
+    .score-bar { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #1e3a5f, #3a6ea8); transition: width 0.8s ease; }
+    .results-detail { font-size: 0.9rem; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .results-detail h3 { font-size: 0.93rem; margin: 1.25rem 0 0.5rem; font-weight: 600; }
+    .results-detail h3:first-child { margin-top: 0; }
+    .results-detail table { width: 100%; min-width: 15rem; border-collapse: collapse; margin-top: 0.5rem; }
+    .results-detail th, .results-detail td { text-align: left; padding: 0.4rem 0.5rem; border: 1px solid var(--rule); overflow-wrap: anywhere; word-break: break-word; }
+    .results-detail th { background: #eef1f4; font-size: 0.78rem; letter-spacing: 0.05em; text-transform: uppercase; }
+    .correct { color: var(--success); font-weight: 600; }
+    .incorrect { color: var(--error); }
+
+    /* ── ANSWER KEY ── */
+    .answer-key-section { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 2px solid var(--rule); }
+    .key-note { font-size: 0.88rem; color: var(--muted); margin: 0 0 1rem; font-style: italic; }
+    .answer-key-content { margin-top: 1rem; padding: 1.1rem; background: #fff; border: 1px solid var(--rule); font-size: 0.88rem; }
+    .answer-key-content.hidden { display: none; }
+    .key-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%,8rem),1fr)); gap: 0.35rem 0.75rem; }
+    .key-grid div { padding: 0.2rem 0; border-bottom: 1px dotted var(--rule); }
+    .key-section-title { font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); margin: 1rem 0 0.5rem; }
+
+    /* ── PROGRESS TRACKER ── */
+    .progress-bar-wrap { background: rgba(255,255,255,0.15); height: 6px; border-radius: 99px; overflow: hidden; margin-top: 1rem; max-width: 24rem; margin-left: auto; margin-right: auto; }
+    .progress-bar { height: 100%; background: #f0c040; border-radius: 99px; transition: width 0.3s ease; width: 0%; }
+    .progress-label { font-size: 0.78rem; color: rgba(255,255,255,0.6); margin-top: 0.4rem; }
+
+    /* ── FOOTER ── */
+    .exam-footer { text-align: center; padding: 1.35rem clamp(1rem, 4vw, 2rem); font-size: clamp(0.75rem, 2.3vw, 0.82rem); color: var(--muted); border-top: 1px solid var(--rule); background: #fff; line-height: 1.65; }
+
+    /* ── MOBILE ── */
+    @media (max-width: 36rem) {
+      .part-title { font-size: 1.05rem; }
+      .mc-item { padding-left: 0.75rem; padding-right: 0; }
+      .mc-item.answer-correct { animation: none; box-shadow: 0 0 0 1px rgba(46,125,50,0.35), 0 0 14px 3px var(--glow-green); }
+      .mc-item.answer-incorrect { animation: none; box-shadow: 0 0 0 1px rgba(198,40,40,0.4), 0 0 14px 3px var(--glow-red); }
+      .actions { flex-direction: column; align-items: stretch; }
+      .actions .btn { width: 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .mc-item.answer-correct, .mc-item.answer-incorrect { animation: none; }
+      .score-bar { transition: none; }
+    }
+    @media print {
+      .actions, #btn-toggle-key { display: none !important; }
+      body { background: #fff; }
+      .mc-item.answer-correct { animation: none; box-shadow: none; border-left: 4px solid #2e7d32; background: rgba(46,125,50,0.08); }
+      .mc-item.answer-incorrect { animation: none; box-shadow: none; border-left: 4px solid #c62828; background: rgba(198,40,40,0.08); }
+      .exam-header { background: #1e3a5f !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="exam-header">
+  <div class="header-inner">
+    <div class="header-badge">PEE 17 — Power System Analysis</div>
+    <h1 class="exam-title">Long <span>Examination 2</span></h1>
+    <p class="subtitle">Symmetrical Components, Sequence Networks &amp; Fault Analysis — Long Examination</p>
+    <p class="instructions-lead">30 Multiple Choice Questions (1 point each). <strong style="color:#f0c040;">⚡ Live feedback:</strong> questions glow green or red the instant you answer.</p>
+    <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+    <p class="progress-label" id="progress-label">0 of 30 answered</p>
+  </div>
+</header>
+
+<main class="exam-main">
+
+  <section class="student-block" aria-labelledby="student-info-heading">
+    <h2 id="student-info-heading" class="section-label">Examinee Information</h2>
+    <div class="student-grid">
+      <label class="field">
+        <span>Name:</span>
+        <input type="text" name="student_name" id="student_name" autocomplete="name" />
+      </label>
+      <label class="field">
+        <span>Section / Student No.:</span>
+        <input type="text" name="student_id" id="student_id" autocomplete="off" />
+      </label>
+      <label class="field">
+        <span>Date:</span>
+        <input type="date" name="exam_date" id="exam_date" />
+      </label>
+    </div>
+  </section>
+
+  <form id="exam-form" novalidate>
+
+    <!-- PART I: Symmetrical Components & Sequence Theory -->
+    <section class="exam-part" aria-labelledby="part1-heading">
+      <div class="part-header">
+        <span class="part-number">Part I</span>
+        <h2 id="part1-heading" class="part-title">Symmetrical Components &amp; Sequence Theory</h2>
+      </div>
+      <p class="part-direction">Choose the letter of the best answer. (1 point each)</p>
+      <div id="mc-container-1" class="questions"></div>
+    </section>
+
+    <!-- PART II: Sequence Networks & Fault Types -->
+    <section class="exam-part" aria-labelledby="part2-heading">
+      <div class="part-header">
+        <span class="part-number">Part II</span>
+        <h2 id="part2-heading" class="part-title">Sequence Networks &amp; Fault Types</h2>
+      </div>
+      <p class="part-direction">Choose the letter of the best answer. (1 point each)</p>
+      <div id="mc-container-2" class="questions"></div>
+    </section>
+
+    <!-- PART III: Calculations & Short-Circuit Capacity -->
+    <section class="exam-part" aria-labelledby="part3-heading">
+      <div class="part-header">
+        <span class="part-number">Part III</span>
+        <h2 id="part3-heading" class="part-title">Calculations &amp; Short-Circuit Capacity</h2>
+      </div>
+      <p class="part-direction">Choose the letter of the best answer. (1 point each)</p>
+      <div id="mc-container-3" class="questions"></div>
+    </section>
+
+    <div class="actions">
+      <button type="submit" class="btn btn-primary">✔ Submit Examination</button>
+      <button type="button" class="btn btn-secondary" id="btn-print">🖨 Print</button>
+      <button type="button" class="btn btn-outline" id="btn-toggle-key">Show Answer Key</button>
+      <button type="button" class="btn btn-danger" id="btn-reset">✕ Reset</button>
+    </div>
+
+    <div id="results-panel" class="results-panel hidden" aria-live="polite">
+      <p id="results-summary" class="results-summary"></p>
+      <div class="score-bar-wrap"><div id="score-bar" class="score-bar" style="width:0%"></div></div>
+      <div id="results-detail" class="results-detail"></div>
+    </div>
+
+    <div class="answer-key-section">
+      <p class="key-note">Answer key is hidden by default. Use the button above to reveal after completing the exam.</p>
+      <div id="answer-key-content" class="answer-key-content hidden"></div>
+    </div>
+
+  </form>
+</main>
+
+<footer class="exam-footer">
+  PEE 17 — Power System Analysis &nbsp;|&nbsp; Long Examination 2 &nbsp;|&nbsp; 30 Items &nbsp;·&nbsp; 30 Points
+</footer>
+
+<script>
+(function() {
+  'use strict';
+
+  /* ═══════════════════════════════════════════════
+     PART I — Symmetrical Components & Sequence Theory (Q1–Q10)
+  ═══════════════════════════════════════════════ */
+  const PART1 = [
+    { n:1,
+      q:"Which American scientist developed the method of symmetrical components for analyzing unbalanced three-phase systems?",
+      opts:[
+        "Dr. Charles Forquez",
+        "Dr. Charles Steinmetz",
+        "Nikola Tesla",
+        "Dr. Charles Fortescue"
+      ], ans:"D" },
+    { n:2,
+      q:"A set of three balanced phase vectors having the same phase sequence as the original unbalanced system is known as what?",
+      opts:[
+        "Positive Sequence System",
+        "Zero Sequence System",
+        "Unbalanced Sequence System",
+        "Negative Sequence System"
+      ], ans:"A" },
+    { n:3,
+      q:"In the context of symmetrical components, what is the value of the operator 'A' in polar form?",
+      opts:[
+        "1 cis 0°",
+        "1 cis 180°",
+        "1 cis 240°",
+        "1 cis 120°"
+      ], ans:"D" },
+    { n:4,
+      q:"Which component set consists of three vectors equal in magnitude with zero displacement between them?",
+      opts:[
+        "Symmetrical Sequence",
+        "Zero Sequence",
+        "Positive Sequence",
+        "Negative Sequence"
+      ], ans:"B" },
+    { n:5,
+      q:"When calculating the symmetrical components of current Iₐ, which formula is used to find the zero sequence component Iₐ₀?",
+      opts:[
+        "Iₐ₀ = ⅓(Iₐ + Ib + Ic)",
+        "Iₐ₀ = Iₐ + A²Ib + AIc",
+        "Iₐ₀ = ⅓(Iₐ + A²Ib + AIc)",
+        "Iₐ₀ = (Iₐ + Ib + Ic)"
+      ], ans:"A" },
+    { n:6,
+      q:"Which of the following is classified as a symmetrical fault in a power system?",
+      opts:[
+        "Balanced Three-Phase Fault",
+        "Line-to-Line Fault",
+        "Single line-to-ground fault",
+        "Double line-to-ground fault"
+      ], ans:"A" },
+    { n:7,
+      q:"What happens to the zero sequence network of a Y-connected circuit with an ungrounded neutral?",
+      opts:[
+        "It includes generator emf",
+        "It is represented as a short circuit to the reference bus",
+        "It remains identical to the positive sequence network",
+        "It is represented as an open circuit"
+      ], ans:"D" },
+    { n:8,
+      q:"If a Y-connected neutral is grounded through an impedance Zₙ, how is this impedance represented in the zero sequence network?",
+      opts:[
+        "Zₙ",
+        "3Zₙ",
+        "0 (Short circuit)",
+        "⅓Zₙ"
+      ], ans:"B" },
+    { n:9,
+      q:"Why does a delta-connected circuit offer infinite impedance to zero-sequence line currents?",
+      opts:[
+        "Because it acts as a short circuit",
+        "Because the phase sequence is reversed",
+        "Because the voltages are too high",
+        "Because it has no neutral return path to ground"
+      ], ans:"D" },
+    { n:10,
+      q:"In a three-phase system, if the series impedances Zₐ, Zb, and Zc are equal, a positive sequence current will produce what type of voltage drop?",
+      opts:[
+        "Zero Sequence Voltage drop",
+        "An unbalanced voltage drop across all sequences",
+        "Negative Sequence Voltage drop",
+        "Positive Sequence voltage drop only"
+      ], ans:"D" },
+  ];
+
+  /* ═══════════════════════════════════════════════
+     PART II — Sequence Networks & Fault Types (Q11–Q20)
+  ═══════════════════════════════════════════════ */
+  const PART2 = [
+    { n:11,
+      q:"Which reactance value determines the maximum electrical stress placed on bus bars during the very instant a fault occurs?",
+      opts:[
+        "Zero sequence reactance (X₀)",
+        "Subtransient reactance (Xd'')",
+        "Synchronous reactance (Xd)",
+        "Transient reactance (Xd')"
+      ], ans:"B" },
+    { n:12,
+      q:"What is the relation between the three-phase currents Iₐ, Ib, and Ic during a balanced three-phase fault?",
+      opts:[
+        "The sum of the currents is equal to the rated current",
+        "They are all in-phase",
+        "They are all equal in magnitude and 120° apart",
+        "Two phases are zero and one is maximum"
+      ], ans:"C" },
+    { n:13,
+      q:"Which of the following causes an electrical fault in a power system?",
+      opts:[
+        "High power factor",
+        "Insulation failure",
+        "Normal steady-state operation",
+        "A perfectly balanced load"
+      ], ans:"B" },
+    { n:14,
+      q:"How is a solidly grounded neutral represented in the zero sequence network?",
+      opts:[
+        "An impedance of 3Zₙ",
+        "Open circuit",
+        "A voltage source",
+        "Direct connection (zero impedance) to the reference bus"
+      ], ans:"D" },
+    { n:15,
+      q:"Which of the following is true for the negative sequence network of an unloaded generator?",
+      opts:[
+        "A voltage source Eₐ",
+        "Only the negative sequence impedance Z₂",
+        "An open circuit",
+        "The zero sequence network"
+      ], ans:"B" },
+    { n:16,
+      q:"A balanced three-phase fault is also known as a:",
+      opts:[
+        "Unsymmetrical fault",
+        "L-G fault",
+        "Three-phase short circuit",
+        "Open-conductor fault"
+      ], ans:"C" },
+    { n:17,
+      q:"A \"Sequence Network\" represents:",
+      opts:[
+        "The entire physical wiring",
+        "A single-phase equivalent for a specific sequence",
+        "A computer program",
+        "A relay setting"
+      ], ans:"B" },
+    { n:18,
+      q:"The purpose of a Thevenin equivalent in fault analysis is:",
+      opts:[
+        "To increase complexity",
+        "To represent the system as seen from the fault point",
+        "To calculate transformer temperature",
+        "To bypass circuit breakers"
+      ], ans:"B" },
+    { n:19,
+      q:"In a Delta-Wye (grounded) transformer, the zero sequence network shows:",
+      opts:[
+        "Open circuit on both sides",
+        "Path to ground on Wye side, open on Delta side",
+        "Short circuit",
+        "Voltage source"
+      ], ans:"B" },
+    { n:20,
+      q:"\"High Available Short Circuit KVA\" from a utility usually implies:",
+      opts:[
+        "Lower per-unit system impedance",
+        "Higher per-unit system impedance",
+        "No effect",
+        "Double the voltage"
+      ], ans:"A" },
+  ];
+
+  /* ═══════════════════════════════════════════════
+     PART III — Calculations & Short-Circuit Capacity (Q21–Q30)
+  ═══════════════════════════════════════════════ */
+  const PART3 = [
+    { n:21,
+      q:"What is the formula for calculating Short Circuit MVA (MVAsc)?",
+      opts:[
+        "MVAsc = √3 × V × Ifault",
+        "MVAsc = V × Ifault",
+        "MVAsc = V / Ifault",
+        "MVAsc = (Ifault)² × R"
+      ], ans:"A" },
+    { n:22,
+      q:"A generator rated 50 MVA, 13.8 kV has a subtransient reactance of 0.20 p.u. Calculate the per-unit fault current for a three-phase fault at its terminals.",
+      note:"I_fault = V / Xd'' = 1.0 / 0.20 = 5.0 p.u.",
+      opts:[
+        "0.2 pu",
+        "1.0 pu",
+        "10 pu",
+        "5.0 pu"
+      ], ans:"D" },
+    { n:23,
+      q:"If the available fault duty at a point is 950 MVA at 230 kV, and the Thevenin equivalent reactance is 2.63%, what is the available fault current?",
+      note:"I_base = 950 / (√3 × 230) = 2385 A",
+      opts:[
+        "1200 A",
+        "4130 A",
+        "10000 A",
+        "2385 A"
+      ], ans:"D" },
+    { n:24,
+      q:"The zero sequence reactance of a transmission line is typically how many times greater than its positive sequence reactance?",
+      opts:[
+        "10 to 15 times",
+        "2 to 3.5 times",
+        "0.5 to 1.0 times",
+        "Exactly 1.0 times"
+      ], ans:"B" },
+    { n:25,
+      q:"What is the primary purpose of calculating Short-Circuit Capacity at a bus?",
+      opts:[
+        "To determine the electricity bill of the customer",
+        "To measure the insulation thickness of the cable",
+        "To calculate the speed of the generator",
+        "To determine the required interrupting rating of circuit breakers"
+      ], ans:"D" },
+    { n:26,
+      q:"When converting the subtransient reactance to a new base, which factor is applied to the old per-unit value if the new base voltage is higher than the old base voltage?",
+      opts:[
+        "(Vold/Vnew)²",
+        "(Vold/Vnew)",
+        "(Vnew/Vold)²",
+        "There is no change due to voltage"
+      ], ans:"A" },
+    { n:27,
+      q:"An unloaded generator at 1.05 p.u. voltage with Xd'' = 0.15 p.u. has a fault current of:",
+      note:"I_fault = 1.05 / 0.15 = 7.0 p.u.",
+      opts:[
+        "7.0 p.u.",
+        "6.67 p.u.",
+        "0.15 p.u.",
+        "1.05 p.u."
+      ], ans:"A" },
+    { n:28,
+      q:"Find fault current in Amperes if Ipu = 10 p.u., Base MVA = 50, and Base kV = 34.5.",
+      note:"I_base = 50 / (√3 × 34.5) = 836.7 A → I_fault = 10 × 836.7 = 8,367 A",
+      opts:[
+        "8,367 A",
+        "14,492 A",
+        "836 A",
+        "5,000 A"
+      ], ans:"A" },
+    { n:29,
+      q:"Which fault is generally the most severe in terms of current magnitude?",
+      opts:[
+        "Single line-to-ground",
+        "Line-to-line",
+        "Balanced Three-Phase fault",
+        "Arcing fault"
+      ], ans:"C" },
+    { n:30,
+      q:"If the Base MVA is increased (Voltage base constant), the per-unit reactance:",
+      opts:[
+        "Increases proportionally",
+        "Decreases proportionally",
+        "Remains unchanged",
+        "Becomes zero"
+      ], ans:"A" },
+  ];
+
+  const ALL_QUESTIONS = [...PART1, ...PART2, ...PART3];
+
+  /* ═══════════════════════════════════════════════
+     RENDER
+  ═══════════════════════════════════════════════ */
+  function el(tag, attrs, ...children) {
+    const e = document.createElement(tag);
+    Object.entries(attrs || {}).forEach(([k, v]) => {
+      if (k === "class") e.className = v;
+      else e.setAttribute(k, v);
+    });
+    children.forEach(c => {
+      if (typeof c === "string") e.appendChild(document.createTextNode(c));
+      else if (c) e.appendChild(c);
+    });
+    return e;
+  }
+
+  function renderPart(questions, containerId) {
+    const container = document.getElementById(containerId);
+    const letters = ["A","B","C","D"];
+    questions.forEach(function(q) {
+      const item = el("div", { class: "mc-item", "data-q": q.n });
+      const stem = el("p", { class: "mc-stem" }, q.n + ". " + q.q);
+      const opts = el("div", { class: "mc-options" });
+      q.opts.forEach(function(o, i) {
+        const lbl = el("label", {});
+        const inp = el("input", { type: "radio", name: "mc_" + q.n, value: letters[i] });
+        const span = el("span", {}, letters[i] + ". " + o);
+        lbl.appendChild(inp);
+        lbl.appendChild(span);
+        opts.appendChild(lbl);
+      });
+      item.appendChild(stem);
+      item.appendChild(opts);
+      if (q.note) {
+        const note = el("p", { class: "mc-note" }, "💡 Solution hint: " + q.note);
+        item.appendChild(note);
+      }
+      container.appendChild(item);
+    });
+  }
+
+  function renderAnswerKey() {
+    const container = document.getElementById("answer-key-content");
+    const title = el("div", { class: "key-section-title" }, "Answer Key — All 30 Items");
+    const grid = el("div", { class: "key-grid" });
+    ALL_QUESTIONS.forEach(function(q, i) {
+      grid.appendChild(el("div", {}, (i+1) + ". " + q.ans));
+    });
+    container.appendChild(title);
+    container.appendChild(grid);
+  }
+
+  /* ═══════════════════════════════════════════════
+     PROGRESS TRACKER
+  ═══════════════════════════════════════════════ */
+  function updateProgress() {
+    let answered = 0;
+    ALL_QUESTIONS.forEach(function(q) {
+      if (document.querySelector("input[name='mc_" + q.n + "']:checked")) answered++;
+    });
+    const pct = Math.round((answered / ALL_QUESTIONS.length) * 100);
+    document.getElementById("progress-bar").style.width = pct + "%";
+    document.getElementById("progress-label").textContent = answered + " of " + ALL_QUESTIONS.length + " answered";
+  }
+
+  /* ═══════════════════════════════════════════════
+     LIVE FEEDBACK
+  ═══════════════════════════════════════════════ */
+  function applyGlow(block, ok) {
+    block.classList.remove("answer-correct", "answer-incorrect");
+    if (ok === true)  block.classList.add("answer-correct");
+    if (ok === false) block.classList.add("answer-incorrect");
+  }
+
+  function attachLiveListeners() {
+    ALL_QUESTIONS.forEach(function(q) {
+      const block = document.querySelector(".mc-item[data-q='" + q.n + "']");
+      if (!block) return;
+      block.querySelectorAll("input[type='radio']").forEach(function(radio) {
+        radio.addEventListener("change", function() {
+          const sel = document.querySelector("input[name='mc_" + q.n + "']:checked");
+          const user = sel ? sel.value : null;
+          applyGlow(block, user !== null ? user === q.ans : null);
+          updateProgress();
+        });
+      });
+    });
+  }
+
+  /* ═══════════════════════════════════════════════
+     GRADING
+  ═══════════════════════════════════════════════ */
+  function clearGlows() {
+    document.querySelectorAll(".mc-item").forEach(function(e) {
+      e.classList.remove("answer-correct","answer-incorrect");
+    });
+  }
+
+  function grade() {
+    let correct = 0;
+    const rows = [];
+    clearGlows();
+
+    ALL_QUESTIONS.forEach(function(q) {
+      const sel = document.querySelector("input[name='mc_" + q.n + "']:checked");
+      const user = sel ? sel.value : "—";
+      const ok = user === q.ans;
+      if (ok) correct++;
+      rows.push({ num: q.n, user, correct: q.ans, ok });
+    });
+
+    const total = ALL_QUESTIONS.length;
+    const pct = Math.round((correct / total) * 100);
+
+    document.getElementById("results-summary").textContent =
+      "Score: " + correct + " / " + total + " (" + pct + "%)" +
+      "  ·  Part I: " + rows.slice(0,10).filter(r=>r.ok).length + "/10" +
+      "  ·  Part II: " + rows.slice(10,20).filter(r=>r.ok).length + "/10" +
+      "  ·  Part III: " + rows.slice(20,30).filter(r=>r.ok).length + "/10";
+
+    setTimeout(function() {
+      document.getElementById("score-bar").style.width = pct + "%";
+    }, 100);
+
+    let html = "<h3>Results Table</h3><table><thead><tr><th>#</th><th>Your Answer</th><th>Key</th><th>Result</th></tr></thead><tbody>";
+    rows.forEach(function(r) {
+      html += "<tr><td>" + r.num + "</td><td>" + r.user + "</td><td>" + r.correct + "</td><td class='" + (r.ok ? "correct" : "incorrect") + "'>" + (r.ok ? "✔ Correct" : "✘ Wrong") + "</td></tr>";
+    });
+    html += "</tbody></table>";
+    document.getElementById("results-detail").innerHTML = html;
+
+    rows.forEach(function(r) {
+      const block = document.querySelector(".mc-item[data-q='" + r.num + "']");
+      if (block) block.classList.add(r.ok ? "answer-correct" : "answer-incorrect");
+    });
+
+    document.getElementById("results-panel").classList.remove("hidden");
+    document.getElementById("results-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  /* ═══════════════════════════════════════════════
+     INIT
+  ═══════════════════════════════════════════════ */
+  function init() {
+    renderPart(PART1, "mc-container-1");
+    renderPart(PART2, "mc-container-2");
+    renderPart(PART3, "mc-container-3");
+    renderAnswerKey();
+    attachLiveListeners();
+
+    const today = new Date().toISOString().slice(0, 10);
+    const dateInput = document.getElementById("exam_date");
+    if (dateInput) dateInput.value = today;
+
+    document.getElementById("exam-form").addEventListener("submit", function(e) {
+      e.preventDefault();
+      grade();
+    });
+
+    document.getElementById("btn-reset").addEventListener("click", function() {
+      if (!confirm("Clear all answers? This cannot be undone.")) return;
+      clearGlows();
+      document.getElementById("exam-form").reset();
+      document.getElementById("results-panel").classList.add("hidden");
+      document.getElementById("score-bar").style.width = "0%";
+      if (dateInput) dateInput.value = today;
+      document.getElementById("progress-bar").style.width = "0%";
+      document.getElementById("progress-label").textContent = "0 of 30 answered";
+    });
+
+    document.getElementById("btn-print").addEventListener("click", function() {
+      window.print();
+    });
+
+    document.getElementById("btn-toggle-key").addEventListener("click", function() {
+      const key = document.getElementById("answer-key-content");
+      const hidden = key.classList.toggle("hidden");
+      this.textContent = hidden ? "Show Answer Key" : "Hide Answer Key";
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#1e3a5f" />
+  <title>PEE 18 — Fault Analysis Exam</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&display=swap');
+
+    :root {
+      --ink: #1a1a1a;
+      --muted: #4a4a4a;
+      --border: #2c3e50;
+      --accent: #1e3a5f;
+      --accent2: #8b1538;
+      --paper: #faf9f7;
+      --rule: #c9c4bc;
+      --success: #1b5e20;
+      --error: #8b1538;
+      --glow-green: rgba(46,125,50,0.55);
+      --glow-red: rgba(198,40,40,0.55);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { font-size: 100%; -webkit-text-size-adjust: 100%; overflow-x: hidden; }
+    body {
+      margin: 0;
+      font-family: 'Source Serif 4', 'Georgia', 'Times New Roman', serif;
+      color: var(--ink);
+      background: var(--paper);
+      line-height: 1.55;
+      overflow-x: hidden;
+    }
+
+    /* ── HEADER ── */
+    .exam-header {
+      background: var(--accent);
+      color: #fff;
+      padding: 2.25rem clamp(1rem, 5vw, 2rem) 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .exam-header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(255,255,255,0.025) 40px, rgba(255,255,255,0.025) 80px);
+      pointer-events: none;
+    }
+    .header-inner { max-width: 50rem; margin: 0 auto; text-align: center; position: relative; }
+    .header-badge {
+      display: inline-block;
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase;
+      background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
+      color: rgba(255,255,255,0.9); padding: 0.3rem 0.85rem; border-radius: 2px; margin-bottom: 0.85rem;
+    }
+    .exam-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(1.5rem, 5vw, 2.4rem); font-weight: 900;
+      margin: 0 0 0.5rem; line-height: 1.15; color: #fff;
+    }
+    .exam-title span { color: #f0c040; }
+    .subtitle { font-size: clamp(0.85rem, 2.5vw, 0.97rem); color: rgba(255,255,255,0.7); font-style: italic; margin: 0; }
+    .instructions-lead {
+      margin: 1rem auto 0;
+      font-size: clamp(0.82rem, 2.4vw, 0.9rem);
+      color: rgba(255,255,255,0.65);
+      max-width: 38rem; line-height: 1.45;
+    }
+
+    /* ── MAIN ── */
+    .exam-main { max-width: 50rem; margin: 0 auto; padding: 2rem clamp(1rem, 4vw, 1.75rem) 4rem; width: 100%; }
+
+    /* ── STUDENT BLOCK ── */
+    .student-block {
+      margin-bottom: 2.25rem; padding: 1.35rem 1.5rem 1.5rem;
+      background: #fff; border: 1px solid var(--rule); border-top: 4px solid var(--accent); border-radius: 2px;
+    }
+    .section-label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent); margin: 0 0 1rem; font-weight: 700; }
+    .student-grid { display: grid; gap: 0.85rem; }
+    @media (min-width: 36rem) {
+      .student-grid { grid-template-columns: 1fr 1fr; }
+      .student-grid .field:first-child { grid-column: 1 / -1; }
+    }
+    .field { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.95rem; }
+    .field span { font-weight: 600; font-size: 0.88rem; color: var(--muted); }
+    .field input {
+      font-family: inherit; font-size: 1rem; padding: 0.5rem 0.65rem;
+      border: 1px solid var(--rule); border-bottom: 2px solid var(--accent);
+      border-radius: 2px; background: #fefefe;
+    }
+    .field input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+    /* ── PARTS ── */
+    .exam-part { margin-bottom: 2.75rem; }
+    .part-header { display: flex; align-items: baseline; gap: 0.75rem; border-bottom: 2px solid var(--ink); padding-bottom: 0.4rem; margin-bottom: 0.5rem; }
+    .part-number { font-family: 'Playfair Display', serif; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent2); }
+    .part-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; margin: 0; line-height: 1; }
+    .part-direction { margin: 0.45rem 0 1.35rem; font-style: italic; color: var(--muted); font-size: 0.95rem; }
+    .questions { display: flex; flex-direction: column; gap: 1.25rem; }
+
+    /* ── MC ITEMS ── */
+    .mc-item {
+      padding: 1rem 1rem 1rem 1.1rem;
+      border-left: 3px solid var(--rule);
+      background: #fff; border-radius: 0 3px 3px 0;
+      transition: box-shadow 0.15s ease, border-left-color 0.15s ease, background-color 0.15s ease;
+    }
+    .mc-stem { margin: 0 0 0.7rem; font-weight: 600; line-height: 1.45; overflow-wrap: break-word; }
+    .mc-options { display: flex; flex-direction: column; gap: 0.3rem; }
+    .mc-options label {
+      display: flex; align-items: flex-start; gap: 0.6rem; cursor: pointer;
+      font-size: clamp(0.88rem, 2.6vw, 0.97rem); padding: 0.45rem 0.3rem;
+      border-radius: 3px; min-height: 2.6rem; touch-action: manipulation;
+    }
+    .mc-options label:hover { background: rgba(30,58,95,0.05); }
+    .mc-options input { margin-top: 0.22rem; flex-shrink: 0; width: 1.1rem; height: 1.1rem; accent-color: var(--accent); }
+    .mc-options span { overflow-wrap: break-word; min-width: 0; }
+
+    /* ── FEEDBACK GLOWS ── */
+    .mc-item.answer-correct {
+      border-left-color: #2e7d32; background-color: rgba(46,125,50,0.06);
+      box-shadow: 0 0 0 1px rgba(46,125,50,0.35), 0 0 20px 4px var(--glow-green), 0 0 40px 8px rgba(46,125,50,0.15);
+      animation: glow-green-pulse 2s ease-in-out infinite;
+    }
+    .mc-item.answer-incorrect {
+      border-left-color: #c62828; background-color: rgba(198,40,40,0.06);
+      box-shadow: 0 0 0 1px rgba(198,40,40,0.4), 0 0 20px 4px var(--glow-red), 0 0 40px 8px rgba(198,40,40,0.18);
+      animation: glow-red-pulse 2s ease-in-out infinite;
+    }
+    @keyframes glow-green-pulse {
+      0%,100% { box-shadow: 0 0 0 1px rgba(46,125,50,0.35), 0 0 16px 3px var(--glow-green), 0 0 32px 6px rgba(46,125,50,0.12); }
+      50% { box-shadow: 0 0 0 1px rgba(46,125,50,0.45), 0 0 24px 6px rgba(46,125,50,0.65), 0 0 48px 10px rgba(46,125,50,0.2); }
+    }
+    @keyframes glow-red-pulse {
+      0%,100% { box-shadow: 0 0 0 1px rgba(198,40,40,0.4), 0 0 16px 3px var(--glow-red), 0 0 32px 6px rgba(198,40,40,0.14); }
+      50% { box-shadow: 0 0 0 1px rgba(198,40,40,0.5), 0 0 24px 6px rgba(198,40,40,0.7), 0 0 48px 10px rgba(198,40,40,0.22); }
+    }
+
+    /* ── ACTIONS ── */
+    .actions {
+      display: flex; flex-wrap: wrap; gap: 0.65rem;
+      margin: 2.25rem 0 0; padding-top: 1.5rem; border-top: 1px solid var(--rule);
+    }
+    .btn {
+      font-family: 'Source Serif 4', serif; font-size: 0.92rem;
+      padding: 0.65rem 1.25rem; min-height: 2.75rem; border-radius: 3px;
+      cursor: pointer; border: 1px solid var(--border);
+      touch-action: manipulation; letter-spacing: 0.02em;
+      transition: background 0.18s, color 0.18s;
+    }
+    .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
+    .btn-primary:hover { background: #152d49; }
+    .btn-secondary { background: #fff; color: var(--ink); }
+    .btn-secondary:hover { background: #f0eeeb; }
+    .btn-outline { background: transparent; color: var(--accent); border-color: var(--accent); }
+    .btn-outline:hover { background: rgba(30,58,95,0.07); }
+    .btn-danger { background: transparent; color: var(--accent2); border-color: var(--accent2); }
+    .btn-danger:hover { background: rgba(139,21,56,0.07); }
+
+    /* ── RESULTS ── */
+    .results-panel { margin-top: 1.75rem; padding: 1.35rem 1.5rem 1.75rem; border: 1px solid var(--border); border-top: 4px solid var(--accent); background: #fff; }
+    .results-panel.hidden { display: none; }
+    .results-summary { font-size: 1.05rem; margin: 0 0 1.1rem; font-weight: 600; }
+    .score-bar-wrap { height: 10px; background: #e0ddd8; border-radius: 99px; overflow: hidden; margin-bottom: 1.25rem; }
+    .score-bar { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #1e3a5f, #3a6ea8); transition: width 0.8s ease; }
+    .results-detail { font-size: 0.9rem; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .results-detail h3 { font-size: 0.93rem; margin: 1.25rem 0 0.5rem; font-weight: 600; }
+    .results-detail h3:first-child { margin-top: 0; }
+    .results-detail table { width: 100%; min-width: 15rem; border-collapse: collapse; margin-top: 0.5rem; }
+    .results-detail th, .results-detail td { text-align: left; padding: 0.4rem 0.5rem; border: 1px solid var(--rule); overflow-wrap: anywhere; word-break: break-word; }
+    .results-detail th { background: #eef1f4; font-size: 0.78rem; letter-spacing: 0.05em; text-transform: uppercase; }
+    .correct { color: var(--success); font-weight: 600; }
+    .incorrect { color: var(--error); }
+
+    /* ── ANSWER KEY ── */
+    .answer-key-section { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 2px solid var(--rule); }
+    .key-note { font-size: 0.88rem; color: var(--muted); margin: 0 0 1rem; font-style: italic; }
+    .answer-key-content { margin-top: 1rem; padding: 1.1rem; background: #fff; border: 1px solid var(--rule); font-size: 0.88rem; }
+    .answer-key-content.hidden { display: none; }
+    .key-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%,8rem),1fr)); gap: 0.35rem 0.75rem; }
+    .key-grid div { padding: 0.2rem 0; border-bottom: 1px dotted var(--rule); }
+    .key-section-title { font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); margin: 1rem 0 0.5rem; }
+
+    /* ── PROGRESS TRACKER ── */
+    .progress-bar-wrap { background: rgba(255,255,255,0.15); height: 6px; border-radius: 99px; overflow: hidden; margin-top: 1rem; max-width: 24rem; margin-left: auto; margin-right: auto; }
+    .progress-bar { height: 100%; background: #f0c040; border-radius: 99px; transition: width 0.3s ease; width: 0%; }
+    .progress-label { font-size: 0.78rem; color: rgba(255,255,255,0.6); margin-top: 0.4rem; }
+
+    /* ── FOOTER ── */
+    .exam-footer { text-align: center; padding: 1.35rem clamp(1rem, 4vw, 2rem); font-size: clamp(0.75rem, 2.3vw, 0.82rem); color: var(--muted); border-top: 1px solid var(--rule); background: #fff; line-height: 1.65; }
+
+    /* ── MOBILE ── */
+    @media (max-width: 36rem) {
+      .part-title { font-size: 1.05rem; }
+      .mc-item { padding-left: 0.75rem; padding-right: 0; }
+      .mc-item.answer-correct { animation: none; box-shadow: 0 0 0 1px rgba(46,125,50,0.35), 0 0 14px 3px var(--glow-green); }
+      .mc-item.answer-incorrect { animation: none; box-shadow: 0 0 0 1px rgba(198,40,40,0.4), 0 0 14px 3px var(--glow-red); }
+      .actions { flex-direction: column; align-items: stretch; }
+      .actions .btn { width: 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .mc-item.answer-correct, .mc-item.answer-incorrect { animation: none; }
+      .score-bar { transition: none; }
+    }
+    @media print {
+      .actions, #btn-toggle-key { display: none !important; }
+      body { background: #fff; }
+      .mc-item.answer-correct { animation: none; box-shadow: none; border-left: 4px solid #2e7d32; background: rgba(46,125,50,0.08); }
+      .mc-item.answer-incorrect { animation: none; box-shadow: none; border-left: 4px solid #c62828; background: rgba(198,40,40,0.08); }
+      .exam-header { background: #1e3a5f !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="exam-header">
+  <div class="header-inner">
+    <div class="header-badge">PEE 18 — Power Plant Engineering Design</div>
+    <h1 class="exam-title">Fault <span>Analysis</span></h1>
+    <p class="subtitle">Symmetrical Components, Sequence Networks & Fault Types — Practice Examination</p>
+    <p class="instructions-lead">60 Multiple Choice Questions (1 point each). <strong style="color:#f0c040;">⚡ Live feedback:</strong> questions glow green or red the instant you answer.</p>
+    <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+    <p class="progress-label" id="progress-label">0 of 60 answered</p>
+  </div>
+</header>
+
+<main class="exam-main">
+
+  <section class="student-block" aria-labelledby="student-info-heading">
+    <h2 id="student-info-heading" class="section-label">Examinee Information</h2>
+    <div class="student-grid">
+      <label class="field">
+        <span>Name:</span>
+        <input type="text" name="student_name" id="student_name" autocomplete="name" />
+      </label>
+      <label class="field">
+        <span>Section / Student No.:</span>
+        <input type="text" name="student_id" id="student_id" autocomplete="off" />
+      </label>
+      <label class="field">
+        <span>Date:</span>
+        <input type="date" name="exam_date" id="exam_date" />
+      </label>
+    </div>
+  </section>
+
+  <form id="exam-form" novalidate>
+
+    <!-- PART I: Symmetrical Components & Operator A -->
+    <section class="exam-part" aria-labelledby="part1-heading">
+      <div class="part-header">
+        <span class="part-number">Part I</span>
+        <h2 id="part1-heading" class="part-title">Symmetrical Components &amp; Operator "A"</h2>
+      </div>
+      <p class="part-direction">Choose the letter of the best answer. (1 point each)</p>
+      <div id="mc-container-1" class="questions"></div>
+    </section>
+
+    <!-- PART II: Sequence Networks -->
+    <section class="exam-part" aria-labelledby="part2-heading">
+      <div class="part-header">
+        <span class="part-number">Part II</span>
+        <h2 id="part2-heading" class="part-title">Sequence Networks &amp; System Impedances</h2>
+      </div>
+      <p class="part-direction">Choose the letter of the best answer. (1 point each)</p>
+      <div id="mc-container-2" class="questions"></div>
+    </section>
+
+    <!-- PART III: Fault Types & Calculations -->
+    <section class="exam-part" aria-labelledby="part3-heading">
+      <div class="part-header">
+        <span class="part-number">Part III</span>
+        <h2 id="part3-heading" class="part-title">Fault Types, Calculations &amp; Short-Circuit Capacity</h2>
+      </div>
+      <p class="part-direction">Choose the letter of the best answer. (1 point each)</p>
+      <div id="mc-container-3" class="questions"></div>
+    </section>
+
+    <div class="actions">
+      <button type="submit" class="btn btn-primary">✔ Submit Examination</button>
+      <button type="button" class="btn btn-danger" id="btn-reset">✕ Clear All Responses</button>
+      <button type="button" class="btn btn-outline" id="btn-print">⎙ Print / Save as PDF</button>
+    </div>
+  </form>
+
+  <!-- RESULTS -->
+  <section id="results-panel" class="results-panel hidden" aria-live="polite">
+    <h2 class="part-title" style="margin:0 0 0.75rem;border-bottom:1px solid var(--rule);padding-bottom:0.4rem;">Examination Results</h2>
+    <p id="results-summary" class="results-summary"></p>
+    <div class="score-bar-wrap"><div class="score-bar" id="score-bar" style="width:0%"></div></div>
+    <div id="results-detail" class="results-detail"></div>
+  </section>
+
+  <!-- ANSWER KEY -->
+  <section class="answer-key-section" aria-labelledby="key-heading">
+    <h2 id="key-heading" class="section-label">Reference — Answer Key</h2>
+    <p class="key-note">For instructor or self-check use after attempting all items.</p>
+    <button type="button" class="btn btn-outline" id="btn-toggle-key">Show Answer Key</button>
+    <div id="answer-key-content" class="answer-key-content hidden"></div>
+  </section>
+
+</main>
+
+<footer class="exam-footer">
+  <p>PEE 18 — Fundamentals of Power Plant Engineering Design &nbsp;·&nbsp; Fault Analysis Practice Examination</p>
+  <p style="margin:0.25rem 0 0; font-style:italic;">Good luck! 💪 — Engr. Marco U. Figueroa</p>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ═══════════════════════════════════════════════
+     PART I — Symmetrical Components & Operator A (Q1–Q20)
+  ═══════════════════════════════════════════════ */
+  const PART1 = [
+    { n:1, q:"Who developed the method of symmetrical components for analyzing unbalanced three-phase systems?",
+      opts:["Charles Steinmetz","Dr. C.L. Fortescue","Oliver Heaviside","William Rankine"], ans:"B" },
+    { n:2, q:"Symmetrical components resolve any unbalanced three-phase system into how many separate balanced sets of vectors?",
+      opts:["Two","Four","Three","Six"], ans:"C" },
+    { n:3, q:"Which sequence component has the same phase sequence as the original unbalanced system?",
+      opts:["Zero sequence","Negative sequence","Positive sequence","Inverse sequence"], ans:"C" },
+    { n:4, q:"Which sequence component has a phase sequence opposite to that of the original unbalanced system?",
+      opts:["Positive sequence","Zero sequence","Reverse sequence","Negative sequence"], ans:"D" },
+    { n:5, q:"Zero sequence components consist of three single-phase vectors that are:",
+      opts:["120° apart in phase","Equal in magnitude but 60° apart","Equal in magnitude with zero angular displacement","Of equal frequency but different magnitudes"], ans:"C" },
+    { n:6, q:"The operator 'A' rotates a vector by how many degrees in the counterclockwise direction?",
+      opts:["90°","60°","240°","120°"], ans:"D" },
+    { n:7, q:"What is the value of A³?",
+      opts:["1∠240°","1∠120°","1∠0° (i.e., 1)","1∠360° = 0"], ans:"C" },
+    { n:8, q:"What is the value of A²?",
+      opts:["1∠120°","1∠60°","1∠240°","1∠360°"], ans:"C" },
+    { n:9, q:"According to Equation 1, the unbalanced phase current Ia equals:",
+      opts:["Ia₁ + Ia₂ only","3·Ia₀","Ia₀ + Ia₁ + Ia₂","Ia₀ − Ia₁ + Ia₂"], ans:"C" },
+    { n:10, q:"In the positive sequence system, Ib₁ is expressed as:",
+      opts:["A·Ia₁","Ia₁","A²·Ia₁","A³·Ia₁"], ans:"C" },
+    { n:11, q:"In the positive sequence system, Ic₁ is expressed as:",
+      opts:["A²·Ia₁","A·Ia₁","Ia₁/A","A³·Ia₁"], ans:"B" },
+    { n:12, q:"In the negative sequence system, Ib₂ is expressed as:",
+      opts:["A²·Ia₂","A·Ia₂","Ia₂","A³·Ia₂"], ans:"B" },
+    { n:13, q:"In the negative sequence system, Ic₂ is expressed as:",
+      opts:["A·Ia₂","Ia₂","A³·Ia₂","A²·Ia₂"], ans:"D" },
+    { n:14, q:"For zero sequence components, the relationship between Ia₀, Ib₀, and Ic₀ is:",
+      opts:["Ia₀ = −Ib₀ = Ic₀","Ia₀ = Ib₀ = Ic₀","Ia₀ + Ib₀ + Ic₀ = 0","Ia₀ = A·Ib₀ = A²·Ic₀"], ans:"B" },
+    { n:15, q:"When expressing all symmetrical components of Ib in terms of Ia components (Eq. 5), Ib equals:",
+      opts:["Ia₀ + Ia₁ + Ia₂","Ia₀ + A·Ia₁ + A²·Ia₂","Ia₀ + A²·Ia₁ + A·Ia₂","A·Ia₀ + A²·Ia₁ + Ia₂"], ans:"C" },
+    { n:16, q:"When expressing all symmetrical components of Ic in terms of Ia components (Eq. 5), Ic equals:",
+      opts:["Ia₀ + A·Ia₁ + A²·Ia₂","Ia₀ + A²·Ia₁ + A·Ia₂","Ia₀ + Ia₁ + Ia₂","A²·Ia₀ + A·Ia₁ + Ia₂"], ans:"A" },
+    { n:17, q:"According to Eq. 6, the zero sequence component Ia₀ equals (1/3) times:",
+      opts:["Ia + A·Ib + A²·Ic","Ia + A²·Ib + A·Ic","Ia + Ib + Ic","3·Ia only"], ans:"C" },
+    { n:18, q:"According to Eq. 6, the positive sequence component Ia₁ equals (1/3) times:",
+      opts:["Ia + Ib + Ic","Ia + A²·Ib + A·Ic","Ia + A·Ib + A²·Ic","A·Ia + A²·Ib + Ic"], ans:"C" },
+    { n:19, q:"According to Eq. 6, the negative sequence component Ia₂ equals (1/3) times:",
+      opts:["Ia + Ib + Ic","Ia + A·Ib + A²·Ic","Ia + A²·Ib + A·Ic","A²·Ia + A·Ib + Ic"], ans:"C" },
+    { n:20, q:"The key property of the operator 'A' is that A + A² + 1 equals:",
+      opts:["3","A³","1","0"], ans:"D" },
+  ];
+
+  /* ═══════════════════════════════════════════════
+     PART II — Sequence Networks & System Impedances (Q21–Q40)
+  ═══════════════════════════════════════════════ */
+  const PART2 = [
+    { n:21, q:"Unsymmetrical series impedances are systems that become unbalanced only upon:",
+      opts:["Normal load fluctuation","The occurrence of an unsymmetrical fault","Generator startup","Transformer energization"], ans:"B" },
+    { n:22, q:"When balanced impedances Za = Zb = Zc are used, the voltage drop equation simplifies so that each sequence voltage drop depends on:",
+      opts:["Currents of all three sequences","Only its own sequence current","Only the positive sequence current","The sum of all three sequence currents"], ans:"B" },
+    { n:23, q:"A sequence network is defined as the single-phase equivalent circuit composed of impedances to current of:",
+      opts:["All three sequences simultaneously","Any one sequence only","Zero sequence only","Positive and negative sequence combined"], ans:"B" },
+    { n:24, q:"In the positive sequence network of an unloaded generator, the terminal voltage Va₁ equals:",
+      opts:["Ea + Ia₁·Z₁","Ea − Ia₁·Z₁","−Ia₁·Z₁","Ea / Z₁"], ans:"B" },
+    { n:25, q:"In the negative sequence network of an unloaded generator, there is no internal EMF source because:",
+      opts:["The generator does not produce negative sequence voltage under normal balanced operation","The negative sequence impedance is zero","Negative sequence current is always zero","The reference bus absorbs all negative sequence EMF"], ans:"A" },
+    { n:26, q:"In the negative sequence network, Va₂ equals:",
+      opts:["Ea − Ia₂·Z₂","Ea + Ia₂·Z₂","−Ia₂·Z₂","Ia₂·Z₂"], ans:"C" },
+    { n:27, q:"In the zero sequence network, when an impedance Zn exists between the generator neutral and ground, the zero sequence voltage Va₀ equals:",
+      opts:["−Ia₀·Z₀","−(Zn + Z₀)·Ia₀","−(3Zn + Z₀)·Ia₀","−3Zn·Ia₀"], ans:"C" },
+    { n:28, q:"Why does the factor '3' appear in the zero sequence network impedance (3Zn)?",
+      opts:["Because there are three phases and the neutral current equals three times Ia₀","Because zero sequence reactance is always triple the positive sequence","Due to the per-unit system normalization","Because the neutral voltage is divided by three"], ans:"A" },
+    { n:29, q:"In a Y-connected circuit with NO neutral-to-ground connection, the zero sequence network is represented by:",
+      opts:["A short circuit to the reference bus","A series impedance to the reference bus","An open circuit between the circuit and the reference bus","3Zn in series with Z"], ans:"C" },
+    { n:30, q:"If the neutral of a Y-connected circuit is grounded through ZERO impedance, the zero sequence network has:",
+      opts:["An open circuit","A 3Zn element added","A direct (zero-impedance) connection to the reference bus","An infinite impedance to ground"], ans:"C" },
+    { n:31, q:"If impedance Zn is inserted between the neutral and ground of a Y-connected circuit, what impedance must appear in the zero sequence network between neutral and reference bus?",
+      opts:["Zn","2Zn","3Zn","Zn/3"], ans:"C" },
+    { n:32, q:"In a delta-connected circuit, the zero sequence network is:",
+      opts:["Connected directly to the reference bus","An open circuit (infinite impedance to zero-sequence line currents)","A 3Z impedance to ground","Equivalent to the positive sequence network"], ans:"B" },
+    { n:33, q:"For zero sequence networks of three-phase transformers, Case I (grounded-Y / delta) results in zero sequence equivalent circuit where:",
+      opts:["Both P and Q sides are open to the reference bus","P side connects through Z₀ to itself but Q side is open","Q side is grounded and P side is open","Both sides connect directly to the reference bus"], ans:"B" },
+    { n:34, q:"For transformer Case II (grounded-Y / grounded-Y), the zero sequence equivalent circuit shows:",
+      opts:["Both P and Q sides open","P side open and Q side connected","Both P and Q sides connected through the transformer impedance to the reference bus","An isolated transformer between P and Q"], ans:"C" },
+    { n:35, q:"For non-contributing circuit elements such as transformers and cables, which relationship holds among sequence impedances?",
+      opts:["Z₁ = Z₂ only","Z₀ = 0","Z₁ = Z₂ = Z₀","Z₀ = 3Z₁"], ans:"C" },
+    { n:36, q:"For transmission lines, the relationship between positive and negative sequence impedances is:",
+      opts:["Z₁ > Z₂","Z₁ = Z₂","Z₁ < Z₂","Z₂ = 3Z₁"], ans:"B" },
+    { n:37, q:"For transmission lines, the zero sequence reactance Z₀ is approximately how much greater than the positive sequence reactance Z₁?",
+      opts:["1 to 1.5 times","2 to 3.5 times","4 to 5 times","Equal to Z₁"], ans:"B" },
+    { n:38, q:"For rotating machinery (generators, motors), the positive sequence reactance X₁ equals:",
+      opts:["Xd (synchronous reactance)","Xd' (transient reactance)","Xd'' (subtransient reactance)","(Xd'' + Xq) / 2"], ans:"C" },
+    { n:39, q:"For rotating machinery when Xq is not given, the negative sequence reactance X₂ equals:",
+      opts:["Xd (synchronous)","Xd' (transient)","Xd'' (subtransient) = X₁","Xq alone"], ans:"C" },
+    { n:40, q:"For rotating machinery, the zero sequence reactance X₀ has a value that is how much relative to X₁?",
+      opts:["Greater than X₁ by 2 to 3.5 times","Equal to X₁","Less than X₁ by 10 to 25%","Greater than X₁ by 50%"], ans:"C" },
+  ];
+
+  /* ═══════════════════════════════════════════════
+     PART III — Fault Types, Calculations & SCC (Q41–Q60)
+  ═══════════════════════════════════════════════ */
+  const PART3 = [
+    { n:41, q:"A fault in a power system is generally defined as an abnormal condition that results in:",
+      opts:["Reduced system voltage only","Large current flow causing deviation from normal operating conditions","Increased frequency","Reduced power factor only"], ans:"B" },
+    { n:42, q:"Which of the following is NOT listed as a typical cause of power system faults?",
+      opts:["Lightning strikes","Insulation failure","Scheduled maintenance","Tree branches contacting lines"], ans:"C" },
+    { n:43, q:"Symmetrical (balanced) faults are characterized by:",
+      opts:["Only one phase being affected","Unequal fault currents in each phase","All three phases short-circuited together with equal currents 120° apart","Two phases being shorted to ground"], ans:"C" },
+    { n:44, q:"Which of the following is classified as an UNSYMMETRICAL fault type?",
+      opts:["Three-phase short circuit","Three-phase to ground fault","Single line-to-ground (SLG) fault","Balanced three-phase fault"], ans:"C" },
+    { n:45, q:"For the analysis of a balanced three-phase fault, which sequence network is used?",
+      opts:["Zero sequence network only","Negative sequence network only","All three sequence networks in parallel","Positive sequence network only"], ans:"D" },
+    { n:46, q:"During a balanced three-phase fault, the system:",
+      opts:["Becomes unsymmetrical","Requires zero sequence analysis","Remains symmetrical","Develops negative sequence currents"], ans:"C" },
+    { n:47, q:"The three-phase fault current formula using the Thevenin equivalent is:",
+      opts:["If = Vprefault × Zth","If = Vprefault / Zth","If = Zth / Vprefault","If = Vprefault − Zth"], ans:"B" },
+    { n:48, q:"In the per-unit system, the three-phase fault current is:",
+      opts:["If(pu) = Vpu × Zpu","If(pu) = Zpu / Vpu","If(pu) = Vpu / Zpu","If(pu) = 1 / (Vpu + Zpu)"], ans:"C" },
+    { n:49, q:"Short-Circuit Capacity (MVASC) can be calculated as V² / Z. What does 'Z' represent in this context?",
+      opts:["Load impedance","Thevenin equivalent impedance at the fault bus","Generator armature resistance","Transformer leakage reactance"], ans:"B" },
+    { n:50, q:"The formula MVASC = √3 · V · Ifault uses what value of voltage V?",
+      opts:["Phase voltage","Line voltage","Per-unit voltage","Rated generator voltage only"], ans:"B" },
+    { n:51, q:"Short-circuit capacity is used to determine the required rating of which equipment?",
+      opts:["Transformers only","Circuit breakers, protective relays, and switchgear","Load tap changers","Capacitor banks"], ans:"B" },
+    { n:52, q:"A generator rated 50 MVA, 13.8 kV has a subtransient reactance of 0.2 pu. The base current is approximately (use Ibase = MVA / (√3 × kV)):",
+      opts:["1,673 A","2,090 A","418 A","836 A"], ans:"B" },
+    { n:53, q:"For the 50 MVA, 13.8 kV generator with Xd'' = 0.2 pu, the three-phase subtransient fault current in per unit (assuming Vpu = 1.0) is:",
+      opts:["10 pu","2 pu","5 pu","0.2 pu"], ans:"C" },
+    { n:54, q:"At a 34.5 kV substation with 10 pu available fault current and a base MVA of 50, the available fault MVA is:",
+      opts:["345 MVA","500 MVA","50 MVA","3,450 MVA"], ans:"B" },
+    { n:55, q:"A fault point has a Thevenin equivalent of 2.63% (0.0263 pu) at 230 kV with 950 MVA fault duty. The base current at 230 kV (Ibase = MVA / (√3 × kV)) is approximately:",
+      opts:["1,200 A","2,390 A","4,780 A","598 A"], ans:"B" },
+    { n:56, q:"For the 950 MVA / 230 kV system with 2.63% Thevenin impedance, the available fault current (If = MVAsc / (√3 × kV)) is approximately:",
+      opts:["1,190 A","2,385 A","4,770 A","3,180 A"], ans:"B" },
+    { n:57, q:"A 500 MVA, 20 kV generator is operating at 5% above rated voltage (V = 1.05 pu) with Xd'' = 0.15 pu. The subtransient fault current in per unit is:",
+      opts:["5 pu","7 pu","1.05/0.15 = 7 pu","0.15/1.05 pu"], ans:"C" },
+    { n:58, q:"The base current for the 500 MVA, 20 kV generator is approximately:",
+      opts:["14,434 A","28,868 A","7,217 A","21,651 A"], ans:"A" },
+    { n:59, q:"For an impedance-grounded Y-connected load placed in the zero sequence network, the total series impedance seen per phase is:",
+      opts:["Z only","Z + Zn","Z + 3Zn","3Z + Zn"], ans:"C" },
+    { n:60, q:"The primary purpose of short-circuit analysis in power system protection is to:",
+      opts:["Maximize power transfer efficiency","Determine equipment interrupting ratings and protection coordination","Reduce transformer losses","Improve power factor"],  ans:"B" },
+  ];
+
+  const ALL_QUESTIONS = [...PART1, ...PART2, ...PART3];
+  const ALL_ANSWERS = ALL_QUESTIONS.map(q => q.ans);
+
+  /* ═══════════════════════════════════════════════
+     RENDER
+  ═══════════════════════════════════════════════ */
+  function el(tag, attrs, ...children) {
+    const e = document.createElement(tag);
+    Object.entries(attrs || {}).forEach(([k, v]) => {
+      if (k === "class") e.className = v;
+      else e.setAttribute(k, v);
+    });
+    children.forEach(c => {
+      if (typeof c === "string") e.appendChild(document.createTextNode(c));
+      else if (c) e.appendChild(c);
+    });
+    return e;
+  }
+
+  function renderPart(questions, containerId) {
+    const container = document.getElementById(containerId);
+    const letters = ["A","B","C","D"];
+    questions.forEach(function(q) {
+      const item = el("div", { class: "mc-item", "data-q": q.n });
+      const stem = el("p", { class: "mc-stem" }, q.n + ". " + q.q);
+      const opts = el("div", { class: "mc-options" });
+      q.opts.forEach(function(o, i) {
+        const lbl = el("label", {});
+        const inp = el("input", { type: "radio", name: "mc_" + q.n, value: letters[i] });
+        const span = el("span", {}, letters[i] + ". " + o);
+        lbl.appendChild(inp);
+        lbl.appendChild(span);
+        opts.appendChild(lbl);
+      });
+      item.appendChild(stem);
+      item.appendChild(opts);
+      container.appendChild(item);
+    });
+  }
+
+  function renderAnswerKey() {
+    const container = document.getElementById("answer-key-content");
+    const title = el("div", { class: "key-section-title" }, "Answer Key — All 60 Items");
+    const grid = el("div", { class: "key-grid" });
+    ALL_QUESTIONS.forEach(function(q, i) {
+      grid.appendChild(el("div", {}, (i+1) + ". " + q.ans));
+    });
+    container.appendChild(title);
+    container.appendChild(grid);
+  }
+
+  /* ═══════════════════════════════════════════════
+     PROGRESS TRACKER
+  ═══════════════════════════════════════════════ */
+  function updateProgress() {
+    let answered = 0;
+    ALL_QUESTIONS.forEach(function(q) {
+      if (document.querySelector("input[name='mc_" + q.n + "']:checked")) answered++;
+    });
+    const pct = Math.round((answered / ALL_QUESTIONS.length) * 100);
+    document.getElementById("progress-bar").style.width = pct + "%";
+    document.getElementById("progress-label").textContent = answered + " of " + ALL_QUESTIONS.length + " answered";
+  }
+
+  /* ═══════════════════════════════════════════════
+     LIVE FEEDBACK
+  ═══════════════════════════════════════════════ */
+  function applyGlow(block, ok) {
+    block.classList.remove("answer-correct", "answer-incorrect");
+    if (ok === true)  block.classList.add("answer-correct");
+    if (ok === false) block.classList.add("answer-incorrect");
+  }
+
+  function attachLiveListeners() {
+    ALL_QUESTIONS.forEach(function(q) {
+      const block = document.querySelector(".mc-item[data-q='" + q.n + "']");
+      if (!block) return;
+      block.querySelectorAll("input[type='radio']").forEach(function(radio) {
+        radio.addEventListener("change", function() {
+          const sel = document.querySelector("input[name='mc_" + q.n + "']:checked");
+          const user = sel ? sel.value : null;
+          applyGlow(block, user !== null ? user === q.ans : null);
+          updateProgress();
+        });
+      });
+    });
+  }
+
+  /* ═══════════════════════════════════════════════
+     GRADING
+  ═══════════════════════════════════════════════ */
+  function clearGlows() {
+    document.querySelectorAll(".mc-item").forEach(function(el) {
+      el.classList.remove("answer-correct","answer-incorrect");
+    });
+  }
+
+  function escapeHtml(t) {
+    const d = document.createElement("div");
+    d.textContent = t;
+    return d.innerHTML;
+  }
+
+  function grade() {
+    let correct = 0;
+    const rows = [];
+    clearGlows();
+
+    ALL_QUESTIONS.forEach(function(q) {
+      const sel = document.querySelector("input[name='mc_" + q.n + "']:checked");
+      const user = sel ? sel.value : "—";
+      const ok = user === q.ans;
+      if (ok) correct++;
+      rows.push({ num: q.n, user, correct: q.ans, ok });
+    });
+
+    const total = ALL_QUESTIONS.length;
+    const pct = Math.round((correct / total) * 100);
+
+    document.getElementById("results-summary").textContent =
+      "Score: " + correct + " / " + total + " (" + pct + "%)" +
+      "  ·  Part I: " + rows.slice(0,20).filter(r=>r.ok).length + "/20" +
+      "  ·  Part II: " + rows.slice(20,40).filter(r=>r.ok).length + "/20" +
+      "  ·  Part III: " + rows.slice(40,60).filter(r=>r.ok).length + "/20";
+
+    setTimeout(function() {
+      document.getElementById("score-bar").style.width = pct + "%";
+    }, 100);
+
+    let html = "<h3>Results Table</h3><table><thead><tr><th>#</th><th>Your Answer</th><th>Key</th><th>Result</th></tr></thead><tbody>";
+    rows.forEach(function(r) {
+      html += "<tr><td>" + r.num + "</td><td>" + r.user + "</td><td>" + r.correct + "</td><td class='" + (r.ok ? "correct" : "incorrect") + "'>" + (r.ok ? "✔ Correct" : "✘ Wrong") + "</td></tr>";
+    });
+    html += "</tbody></table>";
+    document.getElementById("results-detail").innerHTML = html;
+
+    rows.forEach(function(r) {
+      const block = document.querySelector(".mc-item[data-q='" + r.num + "']");
+      if (block) block.classList.add(r.ok ? "answer-correct" : "answer-incorrect");
+    });
+
+    document.getElementById("results-panel").classList.remove("hidden");
+    document.getElementById("results-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  /* ═══════════════════════════════════════════════
+     INIT
+  ═══════════════════════════════════════════════ */
+  function init() {
+    renderPart(PART1, "mc-container-1");
+    renderPart(PART2, "mc-container-2");
+    renderPart(PART3, "mc-container-3");
+    renderAnswerKey();
+    attachLiveListeners();
+
+    const today = new Date().toISOString().slice(0, 10);
+    const dateInput = document.getElementById("exam_date");
+    if (dateInput) dateInput.value = today;
+
+    document.getElementById("exam-form").addEventListener("submit", function(e) {
+      e.preventDefault();
+      grade();
+    });
+
+    document.getElementById("btn-reset").addEventListener("click", function() {
+      if (!confirm("Clear all answers? This cannot be undone.")) return;
+      clearGlows();
+      document.getElementById("exam-form").reset();
+      document.getElementById("results-panel").classList.add("hidden");
+      document.getElementById("score-bar").style.width = "0%";
+      if (dateInput) dateInput.value = today;
+      document.getElementById("progress-bar").style.width = "0%";
+      document.getElementById("progress-label").textContent = "0 of 60 answered";
+    });
+
+    document.getElementById("btn-print").addEventListener("click", function() {
+      window.print();
+    });
+
+    document.getElementById("btn-toggle-key").addEventListener("click", function() {
+      const key = document.getElementById("answer-key-content");
+      const hidden = key.classList.toggle("hidden");
+      this.textContent = hidden ? "Show Answer Key" : "Hide Answer Key";
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body>
+</html>
